@@ -1,0 +1,26 @@
+{%load bootstrap5%}
+{% block content%}
+<div class="container">
+    <div class="content-section vh-100 d-flex align-items-center justify-content-center" style="display:flex; flex-direction: column;">
+        <div class="card row justify-content-around">
+            <h5 class="text-center my-3">Profile Avatar</h5>
+            <div class="col-sm-4 mx-4">
+                <img src="{{ user.profile.userpic.url }}" alt="Image not available" height="300" width="300" style="border-radius: 50%;">
+            </div>
+
+            <div class="col-sm-6">
+                <p class="section-heading">Username: {{ user.username }}</p>
+                <p>Biography: {{ user.profile.bio }}</p>
+                <p class="section-heading">Contact No: {{ user.profile.phone }}</p>
+                <p class="section-heading">Email: {{ user.email }}</p>
+
+            </div>
+        </div>
+        <div >
+            <div class="my-2">
+                <a class="btn btn-info" type="submit" href="{%url 'update' %}">Update</a>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
