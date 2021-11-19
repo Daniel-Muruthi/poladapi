@@ -32,7 +32,7 @@ def user_tweet(sender, instance, **kwargs):
     driver = webdriver.Chrome(ChromeDriverManager().install(), options = chrome_options)
     driver.get('https://twitter.com/login')
     driver.maximize_window()
-    ###############################
+    ################
     time.sleep(5)
     # if current_user == user
     conn = psycopg2.connect("dbname=polad port=5432 user=moringa password=muruthi1995")
