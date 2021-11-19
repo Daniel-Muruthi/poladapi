@@ -29,7 +29,9 @@ import secrets
 def user_tweet(sender, instance, **kwargs):
     chrome_options = Options()
     chrome_options.add_experimental_option("detach", True)
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options = chrome_options)
+    # driver = webdriver.Chrome(ChromeDriverManager().install(), options = chrome_options)
+    driver_path = 'usr/lib/chromium-browser/chromedriver'
+    driver = webdriver.Chrome(driver_path)
     driver.get('https://twitter.com/login')
     driver.maximize_window()
     ################
