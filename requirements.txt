@@ -24,6 +24,8 @@ django-bootstrap5==2.1.2
 django-heroku==0.3.1
 django-phonenumber-field==6.0.0
 django-registration-redux==2.9
+djangorestframework==3.12.4
+djangorestframework-simplejwt==5.0.0
 future==0.18.2
 gunicorn==20.1.0
 h11==0.12.0
@@ -46,6 +48,7 @@ psycopg2==2.9.1
 ptyprocess==0.6.0
 pycparser==2.21
 Pygments==2.7.2
+PyJWT==2.3.0
 pylint==2.6.0
 pyOpenSSL==21.0.0
 PySocks==1.7.1
