@@ -37,11 +37,11 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class LoginSerializer(TokenObtainPairSerializer):
-    email = serializers.EmailField(
-            required=True,
-            validators=[UniqueValidator(queryset=User.objects.all())]
-            )
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    # email = serializers.EmailField(
+    #         required=True,
+    #         validators=[UniqueValidator(queryset=User.objects.all())]
+    #         )
+    # password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     class Meta:
         model = User
         fields = ('email','password',)
