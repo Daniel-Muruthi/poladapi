@@ -155,6 +155,25 @@ REST_FRAMEWORK = {
     'knox.auth.TokenAuthentication',
 ]
 }
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+REST_SESSION_LOGIN = True
+#This is required otherwise it asks for email server
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True   
+ACCOUNT_USERNAME_REQUIRED = False
+
+AUTHENTICATION_BACKENDS = (
+
+ "django.contrib.auth.backends.ModelBackend",
+
+
+ "allauth.account.auth_backends.AuthenticationBackend",
+)
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',

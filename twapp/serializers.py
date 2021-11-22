@@ -37,7 +37,14 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class LoginSerializer(TokenObtainPairSerializer):
-
+    email = serializers.EmailField(
+            required=True,
+            validators=[UniqueValidator(queryset=User.objects.all())]
+            )
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    class Meta:
+        model = User
+        fields = ('email','password',)
     @classmethod
     def get_token(cls, user):
         token = super(LoginSerializer, cls).get_token(user)
@@ -57,7 +64,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
+        fields = ('username','first_name', 'last_name','email', 'password', 'password2',  )
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True}

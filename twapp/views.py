@@ -48,21 +48,23 @@ from .permissions import IsAdminOrIsSelf
 from rest_framework.decorators import action
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
+from django.contrib.auth import login as auth_login
 
 # Create your views here.
 #####################login###################
 
 class LoginView(KnoxLoginView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = LoginSerializer
-
-    # def post(self, request, format=None):
-    #     serializer = AuthTokenSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     user = serializer.validated_data['user']
-    #     login(request, user)
-    #     return super(LoginView, self).post(request, format=None)
+    
+    @method_decorator(csrf_exempt)
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        auth_login(request, user)
+        return super(LoginView, self).post(request, format=None)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -71,6 +73,7 @@ class LoginView(KnoxLoginView):
         content = {
             'user': str(request.user),  # `django.contrib.auth.User` instance.
             'auth': str(request.auth),  # None
+            'email': str(request.user.email)
         }
         return Response(content)
 ############################################
