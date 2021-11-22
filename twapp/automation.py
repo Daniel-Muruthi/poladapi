@@ -1,6 +1,7 @@
 from django.contrib.auth import models
 from django.db.models.query import InstanceCheckMeta
 from django.http import request
+from rest_framework.fields import CurrentUserDefault
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,19 +16,24 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import string
-
+from django.contrib.auth.decorators import login_required
 from twapp.views import TwitterCredsView
 from .models import Post, TwitterCreds
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
 import secrets
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 @login_required
 @receiver(post_save, sender=Post)
-def user_tweet(sender, instance, **kwargs):
+def user_tweet(sender,  instance, **kwargs):
+    # if created:
+    #     Token.objects.create(user=instance)
     chrome_options = Options()
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-gpu")
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(ChromeDriverManager().install(), options = chrome_options)
     # driver_path = 'usr/lib/chromium-browser/chromedriver'
@@ -36,13 +42,17 @@ def user_tweet(sender, instance, **kwargs):
     driver.maximize_window()
     ################
     time.sleep(5)
-    # if current_user == user
     conn = psycopg2.connect("dbname=polad port=5432 user=moringa password=muruthi1995")
     cur = conn.cursor()
     sor = conn.cursor()
+    idno = conn.cursor()
     cur.execute(f"SELECT phone FROM twapp_twittercreds")
     sor.execute(f"SELECT password FROM twapp_twittercreds")
-    cred_id= ((Post.get_object(instance.user_id))-1)
+
+    cred_id= ((Post.get_object(instance))-1)//1
+    # obj = Post.get_object(sender)
+
+    # cred_id= 1
     userphone=str(cur.fetchall()[cred_id])
     x=re.sub(r'[' + string.punctuation + ']', '', userphone)
     usercode = str(sor.fetchall()[cred_id])

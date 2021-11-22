@@ -1,5 +1,7 @@
 from django.http.response import HttpResponseRedirect
 import tweepy
+from django.core.exceptions import ValidationError
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
@@ -25,36 +27,80 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 import time
 from rest_framework import serializers, viewsets
-from .serializers import PostSerializer, ProfileSerializer, TwitterCredsSerializer, LoginSerializer, RegisterSerializer
-
-
+from .serializers import PostSerializer, ProfileSerializer, TwitterCredsSerializer, LoginSerializer, RegisterSerializer, UserSerializer
+import json
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.hashers import check_password
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 ########################################################
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import generics
+from rest_framework import generics, permissions
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework import mixins, viewsets
+from .permissions import IsAdminOrIsSelf
+from rest_framework.decorators import action
+from knox.models import AuthToken
+from knox.views import LoginView as KnoxLoginView
 
 # Create your views here.
 #####################login###################
-class LoginView(TokenObtainPairView):
-    permission_classes = (AllowAny,)
+
+class LoginView(KnoxLoginView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = (permissions.AllowAny,)
     serializer_class = LoginSerializer
+
+    # def post(self, request, format=None):
+    #     serializer = AuthTokenSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     user = serializer.validated_data['user']
+    #     login(request, user)
+    #     return super(LoginView, self).post(request, format=None)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginView, self).dispatch(request, *args, **kwargs)
-
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
 ############################################
 
+###################userview####################
+class UserView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated,]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+############################################3#
+
 #####################login###################
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
+
+
+class RegisterView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+        "user": UserSerializer(user, context=self.get_serializer_context()).data,
+        # "token": AuthToken.objects.create(user)[1]
+        "token": Token.objects.get(user=user).key
+        })
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -67,6 +113,25 @@ class RegisterView(generics.CreateAPIView):
         serializer.save()
 
 ############################################
+
+#####################Register 2################################
+# @api_view(['POST',])
+# @permission_classes([AllowAny])
+# def registration_view(request):
+
+#     if request.method == 'POST':
+#         serializer = RegisterSerializer(data=request.data)
+#         data = {}
+#         if serializer.is_valid():
+#             account = serializer.save()
+#             data['response']="successfully registered a new user."
+#             data['email'] = account.email
+#             data['username'] = account.username
+
+#         else:
+#             data = serializer.errors
+#         return Response(data)
+#######################################################
 
 ###############twitter creds#######################
 # @method_decorator(csrf_exempt, name='creds')
@@ -99,7 +164,15 @@ class PostView(viewsets.ModelViewSet):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(PostView, self).dispatch(request, *args, **kwargs)
-
+    # def create(self, request,  *args, **kwargs ):
+    #     # serializer.save(user=self.request.user)
+    #     post_data = request.data
+    #     new_user_id = User.objects.create(id=post_data["user_id"][0])
+    #     new_user_id.save()
+    #     x = Post.objects.create(content=post_data["content"], created_at=post_data["created_at"], tweet_at=post_data["tweet_at"], sent=post_data["sent"],user_id=new_user_id)
+    #     x.save()
+    #     serializer = PostSerializer(x)
+    #     return Response(serializer.data)
 #######################################################
 
 def index(request):
@@ -263,3 +336,40 @@ def newpost(request):
 
 ##############################################
 
+# @api_view(["GET"])
+# @authentication_classes([SessionAuthentication,BasicAuthentication])
+# @permission_classes([IsAuthenticated])
+def login_user(request):
+
+        data = {}
+        reqBody = json.loads(request.body)
+        email1 = reqBody['email']
+        print(email1)
+        password = reqBody['password']
+        try:
+
+            Account = User.objects.get(email=email1)
+        except BaseException as e:
+            raise ValidationError({"400": f'{str(e)}'})
+
+        token = Token.objects.get_or_create(user=Account)[0].key
+        print(token)
+        if not check_password(password, Account.password):
+            raise ValidationError({"message": "Incorrect Login credentials"})
+
+        if Account:
+            if Account.is_active:
+                print(request.user)
+                login(request, Account)
+                data["message"] = "user logged in"
+                data["email_address"] = Account.email
+
+                Res = {"data": data, "token": token}
+
+                return Response(Res)
+
+            else:
+                raise ValidationError({"400": f'Account not active'})
+
+        else:
+            raise ValidationError({"400": f'Account doesnt exist'})

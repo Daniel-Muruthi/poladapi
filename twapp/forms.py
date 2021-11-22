@@ -54,4 +54,4 @@ class TwitterCredsForm(forms.ModelForm):
 class PostForm(forms.ModelForm): 
     class Meta:
         model=Post
-        fields = ['content']
+        fields = ['content', 'tweet_at', 'sent']

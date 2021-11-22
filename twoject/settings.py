@@ -58,7 +58,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'phonenumber_field',
     'rest_framework',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.twitter',
     "rest_framework.authtoken",
+    'django.contrib.sites',
+    'knox',
 ]
 
 MIDDLEWARE = [
@@ -146,8 +152,14 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
     'rest_framework.permissions.IsAuthenticated',
+    'knox.auth.TokenAuthentication',
 ]
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -180,10 +192,10 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
+SITE_ID = 1
 # Activate Django-Heroku.
 django_heroku.settings(locals())
 
-LOGIN_REDIRECT_URL = 'twittercreds'
+LOGIN_REDIRECT_URL = 'tweety'
 
 LOGIN_URL = 'signin'

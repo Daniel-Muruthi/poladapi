@@ -20,18 +20,17 @@ from twapp import views as twapp_views
 from django.contrib.auth import views as auth_views
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
+from knox import views as knox_views
+from rest_framework.authtoken.views import obtain_auth_token
 
-# router = routers.DefaultRouter()
-# router.register('signup', twapp_views.T)
-# router.register('profile', views.ProfileView)
-# router.register('post', views.PostView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('twapp.urls')),
     path('signup/', twapp_views.signup, name="signup" ),
-    path('signin/', auth_views.LoginView.as_view(template_name="auth/login.html"), name="login"),
-    path('auth/login/', twapp_views.LoginView.as_view(), name="signin"),
+    path('auth/login/', twapp_views.LoginView.as_view(), name="login"),
     path('auth/login/refresh/', TokenRefreshView.as_view(), name='login_refresh'),
     path('auth/register/', twapp_views.RegisterView.as_view(), name='register'),
+    path('auth/logout/', knox_views.LogoutView.as_view(), name="logout"),
+    path('auth/logoutall/', knox_views.LogoutAllView.as_view(), name="logoutall"),
 ]
