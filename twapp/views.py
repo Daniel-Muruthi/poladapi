@@ -73,7 +73,6 @@ class LoginView(KnoxLoginView):
         content = {
             'user': str(request.user),  # `django.contrib.auth.User` instance.
             'auth': str(request.auth),  # None
-            'email': str(request.user.email)
         }
         return Response(content)
 ############################################

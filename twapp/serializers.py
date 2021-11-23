@@ -57,7 +57,7 @@ class LoginSerializer(TokenObtainPairSerializer):
     # password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     class Meta:
         model = User
-        fields = ('email','password',)
+        fields = ('username','password',)
     @classmethod
     def get_token(cls, user):
         token = super(LoginSerializer, cls).get_token(user)
