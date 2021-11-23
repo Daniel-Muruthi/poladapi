@@ -55,7 +55,7 @@ from django.contrib.auth import login as auth_login
 
 class LoginView(KnoxLoginView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
     
     @method_decorator(csrf_exempt)
