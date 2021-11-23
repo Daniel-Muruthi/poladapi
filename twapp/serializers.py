@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from twapp.views import PostView
 from .models import TwitterCreds, Profile, Post
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
@@ -29,11 +31,24 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ['id','content', 'created_at', 'tweet_at', 'sent']
 
+    def get_initial(self):
+        initial = super(PostView, self).get_initial()
+        initial['user'] = User.objects.get(user_pk=self.kwargs['pk'])
+        return initial
+
+
+
     def create(self,  validated_data):
         # serializer.save(user=self.request.user)
         x = Post.objects.create(**validated_data)
         x.save()
         return x
+    def get_id(cls, user):
+        token = super(PostSerializer, cls).get_token(user)
+
+        # Add custom claims
+        token['id'] = user.id
+        return token
 
 
 class LoginSerializer(TokenObtainPairSerializer):

@@ -117,28 +117,11 @@ class RegisterView(generics.GenericAPIView):
 
 ############################################
 
-#####################Register 2################################
-# @api_view(['POST',])
-# @permission_classes([AllowAny])
-# def registration_view(request):
-
-#     if request.method == 'POST':
-#         serializer = RegisterSerializer(data=request.data)
-#         data = {}
-#         if serializer.is_valid():
-#             account = serializer.save()
-#             data['response']="successfully registered a new user."
-#             data['email'] = account.email
-#             data['username'] = account.username
-
-#         else:
-#             data = serializer.errors
-#         return Response(data)
-#######################################################
 
 ###############twitter creds#######################
 # @method_decorator(csrf_exempt, name='creds')
 class TwitterCredsView(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = TwitterCreds.objects.all()
     serializer_class = TwitterCredsSerializer
 
@@ -150,6 +133,7 @@ class TwitterCredsView(viewsets.ModelViewSet):
 ###############twitter creds#######################
 # @method_decorator(csrf_exempt, name='prof')
 class ProfileView(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
@@ -161,8 +145,14 @@ class ProfileView(viewsets.ModelViewSet):
 ###############twitter creds#######################
 # @method_decorator(csrf_exempt, name='posts')
 class PostView(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+    def get_initial(self):
+        initial = super(PostView, self).get_initial()
+        initial['user'] = User.objects.get(user_pk=self.kwargs['pk'])
+        return initial
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):

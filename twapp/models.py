@@ -8,7 +8,10 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from django.conf import settings
 # Create your models here.
+User = settings.AUTH_USER_MODEL
+
 
 
 GENDER_CHOICES = (
@@ -80,7 +83,7 @@ class TwitterCreds(models.Model):
 
 
 class Post(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     content = models.TextField()
     tweet_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -91,16 +94,16 @@ class Post(models.Model):
     def __str__(self):
         return str(self.user)
 
-    def get_object(self,**kwargs):
+    # def get_object(self,**kwargs):
         
-        a = Post.objects.get_or_create(id=self.id)
-        for obj in TwitterCreds.objects.all():
-            if obj.id == a:
-                return a
+    #     a = Post.objects.get_or_create(id=self.id)
+    #     for obj in TwitterCreds.objects.all():
+    #         if obj.id == a:
+    #             return a
 
-    # def get_object(self):
-    #     x=self.user_id
-    #     return x
+    def get_object(self):
+        x=self
+        return x
     def get_absolute_url(self):
         return self.content
 

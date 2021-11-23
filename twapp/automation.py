@@ -30,7 +30,7 @@ from rest_framework.authtoken.models import Token
 @receiver(post_save, sender=Post)
 def user_tweet(sender,  instance, **kwargs):
     # if created:
-    #     Token.objects.create(user=instance)
+    # Token.objects.create(user=instance)
     chrome_options = Options()
     # chrome_options.add_argument("--headless")
     # chrome_options.add_argument("--disable-gpu")
@@ -49,10 +49,10 @@ def user_tweet(sender,  instance, **kwargs):
     cur.execute(f"SELECT phone FROM twapp_twittercreds")
     sor.execute(f"SELECT password FROM twapp_twittercreds")
 
-    cred_id= ((Post.get_object(instance))-1)//1
+    # cred_id= ((Post.get_object(instance.user_id))-1)//1
     # obj = Post.get_object(sender)
 
-    # cred_id= 1
+    cred_id= ((sender.get_object(instance.user_id)) -1)//1
     userphone=str(cur.fetchall()[cred_id])
     x=re.sub(r'[' + string.punctuation + ']', '', userphone)
     usercode = str(sor.fetchall()[cred_id])
