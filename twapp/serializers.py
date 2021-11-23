@@ -1,6 +1,4 @@
 from rest_framework import serializers
-
-from twapp.views import PostView
 from .models import TwitterCreds, Profile, Post
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User

@@ -149,10 +149,10 @@ class PostView(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    # def get_initial(self):
-    #     initial = super(PostView, self).get_initial()
-    #     initial['user'] = User.objects.get(user_pk=self.kwargs['pk'])
-    #     return initial
+    def get_initial(self):
+        initial = super(PostView, self).get_initial()
+        initial['user'] = User.objects.get(user_pk=self.kwargs['pk'])
+        return initial
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
