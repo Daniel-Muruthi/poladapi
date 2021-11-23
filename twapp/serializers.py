@@ -31,10 +31,6 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ['id','content', 'created_at', 'tweet_at', 'sent']
 
-    def get_initial(self):
-        initial = super(PostView, self).get_initial()
-        initial['user'] = User.objects.get(user_pk=self.kwargs['pk'])
-        return initial
 
 
 
