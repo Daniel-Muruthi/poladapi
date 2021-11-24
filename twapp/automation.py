@@ -29,11 +29,11 @@ from rest_framework.authtoken.models import Token
 @login_required
 @receiver(post_save, sender=Post)
 def user_tweet(sender,  instance, **kwargs):
-    chrome_options = Options()
+    chrome_options = webdriver.ChromeOptions()
     # chrome_options.add_argument("--headless")
     # chrome_options.add_argument("--disable-gpu")
     chrome_options.add_experimental_option("detach", True)
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options = chrome_options)
+    driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options = chrome_options)
     driver.get('https://twitter.com/login')
     driver.maximize_window()
     ################
