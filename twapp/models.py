@@ -9,8 +9,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 # Create your models here.
-User = settings.AUTH_USER_MODEL
+# User = settings.AUTH_USER_MODEL
 
 
 
@@ -53,7 +54,7 @@ class TwitterCreds(models.Model):
     password = models.CharField(null=True, max_length=255)
 
     def __str__(self):
-        return str(self.user.username)
+        return str(self.user)
 
     
     @classmethod
@@ -64,6 +65,7 @@ class TwitterCreds(models.Model):
     def mypassword(cls, password):
         b = cls.objects.filter(password=password)
         return b
+
 
     def create_user_twittercreds(sender, instance, created, **kwargs):
         if created:
@@ -83,7 +85,7 @@ class TwitterCreds(models.Model):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     content = models.TextField()
     tweet_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -92,27 +94,73 @@ class Post(models.Model):
 
     
     def __str__(self):
-        return str(self.user)
+        return (f'{self.user}')
 
-    # def get_object(self,**kwargs):
-        
-    #     a = Post.objects.get_or_create(id=self.id)
-    #     for obj in TwitterCreds.objects.all():
-    #         if obj.id == a:
-    #             return a
-
-    def get_object(self):
-        x=self
-        return x
     def get_absolute_url(self):
         return self.content
 
     def save(self, *args, **kwargs):
         return super(Post, self).save(*args, **kwargs)
 
+    # def create_user_posts(sender, instance, created, **kwargs):
+    #     if created:
+    #         Post.objects.create(user=instance)
+    # post_save.connect(create_user_posts, sender=User)
 
-#######################################################
+
+    # def save_user_posts(sender, instance, **kwargs):
+    #     instance.post.save()
+    # post_save.connect(save_user_posts, sender=User)
+
+
+
+    # @receiver(post_save, sender=User)
+    # def create_user_post(sender, instance, created, **kwargs):
+    #     try:
+    #         instance.post.save()
+    #     except ObjectDoesNotExist:
+    #         Post.objects.create(user=instance)
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:Token.objects.create(user=instance)
+
+#######################################################
+
+class ApiCredsModel(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    consumer_key = models.CharField(max_length=255)
+    consumer_secret = models.CharField(max_length=255)
+    access_token = models.CharField(max_length=255)
+    token_secret = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.user.username
+
+
+    def create_user_twittercreds(sender, instance, created, **kwargs):
+        if created:
+            ApiCredsModel.objects.create(user=instance)
+    post_save.connect(create_user_twittercreds, sender=User)
+
+
+    def save_user_twittercreds(sender, instance, **kwargs):
+        instance.apicredsmodel.save()
+    post_save.connect(save_user_twittercreds, sender=User)
+
+
+
+    # @receiver(post_save, sender=User)
+    # def create_user_profile(sender, instance, created, **kwargs):
+    #     try:
+    #         instance.apicredsmodel.save()
+    #     except ObjectDoesNotExist:
+    #         ApiCredsModel.objects.create(user=instance)
+
+class TwitterSchedulerModel(models.Model):
+    tweet = models.TextField(max_length=240)
+    tweet_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    sent = models.BooleanField(default=False)
+

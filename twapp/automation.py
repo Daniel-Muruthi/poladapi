@@ -29,15 +29,11 @@ from rest_framework.authtoken.models import Token
 @login_required
 @receiver(post_save, sender=Post)
 def user_tweet(sender,  instance, **kwargs):
-    # if created:
-    # Token.objects.create(user=instance)
     chrome_options = Options()
     # chrome_options.add_argument("--headless")
     # chrome_options.add_argument("--disable-gpu")
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(ChromeDriverManager().install(), options = chrome_options)
-    # driver_path = 'usr/lib/chromium-browser/chromedriver'
-    # driver = webdriver.Chrome(driver_path)
     driver.get('https://twitter.com/login')
     driver.maximize_window()
     ################
@@ -45,17 +41,14 @@ def user_tweet(sender,  instance, **kwargs):
     conn = psycopg2.connect("dbname=polad port=5432 user=moringa password=muruthi1995")
     cur = conn.cursor()
     sor = conn.cursor()
-    idno = conn.cursor()
-    cur.execute(f"SELECT phone FROM twapp_twittercreds")
-    sor.execute(f"SELECT password FROM twapp_twittercreds")
+    cur.execute(f"SELECT phone FROM twapp_twittercreds WHERE user_id={instance.user.id}")
+    sor.execute(f"SELECT password FROM twapp_twittercreds WHERE user_id={instance.user.id}")
 
-    # cred_id= ((Post.get_object(instance.user_id))-1)//1
-    # obj = Post.get_object(sender)
 
-    cred_id= ((sender.get_object(instance.user_id)) -1)//1
-    userphone=str(cur.fetchall()[cred_id])
+    # cred_id= instance.user_id
+    userphone=str(cur.fetchall())
     x=re.sub(r'[' + string.punctuation + ']', '', userphone)
-    usercode = str(sor.fetchall()[cred_id])
+    usercode = str(sor.fetchall())
     y=re.sub(r'[' + string.punctuation + ']', '', usercode)
     ###########################################################
     phone = f'+{x}'
@@ -64,12 +57,12 @@ def user_tweet(sender,  instance, **kwargs):
 
     time.sleep(2)
 
-    loginField = driver.find_element_by_xpath('/html/body/div/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div[2]/label/div/div[2]/div/input')
+    loginField = driver.find_element_by_xpath('/html/body/div/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div[5]/label/div/div[2]/div/input')
 
     loginField.send_keys(phone)
     time.sleep(2)
 
-    nextButton =driver.find_element_by_xpath('/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div')
+    nextButton =driver.find_element_by_xpath('/html/body/div/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div[6]')
 
     nextButton.click()
 

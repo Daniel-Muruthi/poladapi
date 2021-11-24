@@ -6,7 +6,11 @@ class TwappConfig(AppConfig):
     name = 'twapp'
 
     def ready(self):
-        import twapp.automation
+        from twapp import signals
+        from twapp import automation
+        from twapp import tweet_handlers
+        from twapp import scheduler
+        # scheduler.start()
 
 
     

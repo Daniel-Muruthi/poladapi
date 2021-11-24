@@ -27,7 +27,6 @@ from rest_framework.authtoken.views import obtain_auth_token
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('twapp.urls')),
-    path('signup/', twapp_views.signup, name="signup" ),
     path('auth/login/', twapp_views.LoginView.as_view(), name="login"),
     path('auth/login/refresh/', TokenRefreshView.as_view(), name='login_refresh'),
     path('auth/register/', twapp_views.RegisterView.as_view(), name='register'),

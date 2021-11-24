@@ -215,9 +215,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 SITE_ID = 1
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'root': {
+#         'handlers': ['console'],
+#         'level': 'INFO',
+#     },
+# }
 # Activate Django-Heroku.
 django_heroku.settings(locals())
 
-LOGIN_REDIRECT_URL = 'tweety'
+# LOGIN_REDIRECT_URL = 'tweety'
 
-LOGIN_URL = 'signin'
+# LOGIN_URL = 'signin'
