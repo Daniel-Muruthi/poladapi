@@ -39,7 +39,7 @@ def user_tweet(sender,  instance, **kwargs):
     driver.maximize_window()
     ################
     time.sleep(5)
-    conn = psycopg2.connect("dbname='polad' port='5432' user='moringa' host='localhost' password='muruthi1995'")
+    conn = psycopg2.connect("dbname='polad' port='5432' user='moringa' host='/var/run/postgresql' password='muruthi1995'")
     cur = conn.cursor()
     sor = conn.cursor()
     cur.execute(f"SELECT phone FROM twapp_twittercreds WHERE user_id={instance.user.id}")
